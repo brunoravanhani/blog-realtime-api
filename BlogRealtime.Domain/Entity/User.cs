@@ -20,9 +20,9 @@ public class User
         Password = password;
     }
 
-    public bool ValidatePassword(User userToBeTested)
+    public bool ValidatePassword(string password)
     {
-        return Password == userToBeTested.Password;
+        return Password == password;
     }
 
 }

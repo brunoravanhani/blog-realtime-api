@@ -1,3 +1,4 @@
+using BlogRealtime.Domain.Dtos;
 using BlogRealtime.Domain.Entity;
 using BlogRealtime.Domain.Repository;
 
@@ -12,9 +13,16 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
-    public async Task<User?> GetByEmail(string email)
+    public async Task<User?> ValidateLogin(UserLoginDto dto)
     {
-        return await _userRepository.GetByEmail(email);
+        User user = await _userRepository.GetByEmail(dto.Email) ?? throw new ArgumentException();
+
+        if (user.ValidatePassword(dto.Password))
+        {
+            return user;
+        }
+
+        return null;
     }
 
     public async Task Add(User user)

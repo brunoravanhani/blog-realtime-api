@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using BlogRealtime.Domain.Entity;
 using BlogRealtime.Domain.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BlogRealtime.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class PostController : ControllerBase
