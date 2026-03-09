@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BlogRealtime.Applications\BlogRealtime.Application.csproj" />
     <ProjectReference Include="..\BlogRealtime.Domain\BlogRealtime.Domain.csproj" />
     <ProjectReference Include="..\BlogRealtime.Infra\BlogRealtime.Infra.csproj" />
   </ItemGroup>

@@ -1,5 +1,5 @@
-﻿using BlogRealtime.Domain.Dtos;
-using BlogRealtime.Domain.Entity;
+﻿using BlogRealtime.Application.Interfaces;
+using BlogRealtime.Domain.Dtos;
 using BlogRealtime.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,19 +10,19 @@ namespace BlogRealtime.Api.Controllers;
 public class AuthController : ControllerBase
 {
 
-    private readonly IUserService _userService;
+    private readonly IUserApplication _userApplication;
     private readonly ITokenService _tokenService;
 
-    public AuthController(IUserService userService, ITokenService tokenService)
+    public AuthController(IUserApplication userApplication, ITokenService tokenService)
     {
-        _userService = userService;
+        _userApplication = userApplication;
         _tokenService = tokenService;
     }
 
     [HttpPost]
     public async Task<IActionResult> Login(UserLoginDto dto)
     {
-        var user = await _userService.ValidateLogin(dto);
+        var user = await _userApplication.ValidateLogin(dto);
 
         if (user == null)
         {

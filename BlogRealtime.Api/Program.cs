@@ -1,3 +1,5 @@
+using BlogRealtime.Application.Interfaces;
+using BlogRealtime.Application.Services;
 using BlogRealtime.Domain.Repository;
 using BlogRealtime.Domain.Services;
 using BlogRealtime.Domain.Settings;
@@ -30,6 +32,8 @@ builder.Services.AddScoped<IUserRepository, InMemoryUserRepository>();
 builder.Services.AddScoped<IPostRepository, InMemoryPostRepository>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPostApplication, PostApplication>();
+builder.Services.AddScoped<IUserApplication, UserApplication>();
 
 var jwtSettings = new JwtSettings();
 builder.Configuration.GetSection("JwtSettings").Bind(jwtSettings);
