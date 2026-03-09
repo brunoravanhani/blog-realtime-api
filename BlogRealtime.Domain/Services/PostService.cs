@@ -1,3 +1,4 @@
+using BlogRealtime.Domain.Dtos;
 using BlogRealtime.Domain.Entity;
 using BlogRealtime.Domain.Repository;
 
@@ -12,14 +13,19 @@ public class PostService : IPostService
         _postRepository = postRepository;
     }
 
-    public async Task<IEnumerable<Post>> GetAll()
+    public async Task<IEnumerable<PostDto>> GetAll()
     {
-        return await _postRepository.GetAll();
+        var posts = await _postRepository.GetAll();
+        return posts.Select(p =>
+        {
+            return new PostDto(p.Id, p.Title, p.Body, p.Image, new AuthorDto(p.Author.Name));
+        });
     }
 
-    public async Task<Post?> GetById(Guid id)
+    public async Task<PostDto?> GetById(Guid id)
     {
-        return await _postRepository.GetById(id);
+        var post =  await _postRepository.GetById(id);
+        return new PostDto(post.Id, post.Title, post.Body, post.Image, new AuthorDto(post.Author.Name));
     }
 
     public async Task Add(Post post)
