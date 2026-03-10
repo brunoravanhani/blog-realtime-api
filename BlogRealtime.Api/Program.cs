@@ -1,17 +1,13 @@
 using BlogRealtime.Api.WebSockets;
 using BlogRealtime.Application.Interfaces;
 using BlogRealtime.Application.Services;
-using BlogRealtime.Domain.Repository;
+using BlogRealtime.Domain.Cryptography;
 using BlogRealtime.Domain.Services;
 using BlogRealtime.Domain.Settings;
 using BlogRealtime.Infra;
-using BlogRealtime.Infra.Repositories;
+using BlogRealtime.Infra.ExtensionMethods;
 using BlogRealtime.Infra.Seed;
-using BlogRealtime.Infra.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Net.WebSockets;
@@ -23,27 +19,18 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
-var connection = new SqliteConnection("DataSource=:memory:");
-connection.Open();
+var jwtSettings = new JwtSettings();
+builder.Configuration.GetSection("JwtSettings").Bind(jwtSettings);
+builder.Services.AddSingleton(jwtSettings);
 
-builder.Services.AddDbContext<BlogDbContext>(options =>
-{
-    options.UseSqlite(connection);
-});
-builder.Services.AddScoped<IUserRepository, InMemoryUserRepository>();
-builder.Services.AddScoped<IPostRepository, InMemoryPostRepository>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPostApplication, PostApplication>();
 builder.Services.AddScoped<IUserApplication, UserApplication>();
 
-var jwtSettings = new JwtSettings();
-builder.Configuration.GetSection("JwtSettings").Bind(jwtSettings);
-builder.Services.AddSingleton(jwtSettings);
-
-builder.Services.AddSingleton<ITokenService>(new TokenService(jwtSettings));
-
 builder.Services.AddSingleton<WebSocketsManager>();
+
+builder.Services.AddInfraServices(jwtSettings);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -144,8 +131,9 @@ app.Map("/ws", async (HttpContext context, WebSocketsManager manager) =>
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<BlogDbContext>();
+    var cryptography = scope.ServiceProvider.GetRequiredService<ICryptographyHelper>();
     db.Database.EnsureCreated();
-    DbSeeder.Seed(db);
+    DbSeeder.Seed(db, cryptography);
 }
 
 app.Run();

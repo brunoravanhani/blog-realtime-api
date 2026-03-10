@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace BlogRealtime.Infra.Services;
 
-public class TokenService : ITokenService
+internal class TokenService : ITokenService
 {
     private readonly string _secretKey;
     private readonly string _issuer;

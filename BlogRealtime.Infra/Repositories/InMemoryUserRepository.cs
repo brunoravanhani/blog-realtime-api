@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using BlogRealtime.Domain.Entity;
 using BlogRealtime.Domain.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlogRealtime.Infra.Repositories;
 
-public class InMemoryUserRepository : IUserRepository
+internal class InMemoryUserRepository : IUserRepository
 {
     private readonly BlogDbContext _context;
 

@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BlogRealtime.Domain.Cryptography;
 
 namespace BlogRealtime.Infra.Seed;
 
 public static class DbSeeder
 {
-    public static void Seed(BlogDbContext context)
+    public static void Seed(BlogDbContext context, ICryptographyHelper cryptographyHelper)
     {
         if (context.Posts.Any())
             return;
@@ -16,7 +12,7 @@ public static class DbSeeder
         var user = new Domain.Entity.User(
             name: "Admin User",
             email: "admin@example.com",
-            password: "password123"
+            password: cryptographyHelper.HashPassword("password123")
         );
 
         context.Users.Add(user);
