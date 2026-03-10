@@ -3,6 +3,14 @@
 - Swagger: https://localhost:7054/swagger/index.html
 - Web Socket: https://localhost:7054/ws
 
+Next steps
+
+- [ ] Error handling
+- [ ] Validation
+- [ ] password crypto
+- [ ] refactor Program.cs
+- [ ] logs and observability
+
 # Questões relacionadas a C#
 
 
