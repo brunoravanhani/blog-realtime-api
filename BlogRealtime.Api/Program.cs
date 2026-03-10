@@ -1,3 +1,4 @@
+using BlogRealtime.Api.WebSockets;
 using BlogRealtime.Application.Interfaces;
 using BlogRealtime.Application.Services;
 using BlogRealtime.Domain.Repository;
@@ -13,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Net.WebSockets;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,6 +42,8 @@ builder.Configuration.GetSection("JwtSettings").Bind(jwtSettings);
 builder.Services.AddSingleton(jwtSettings);
 
 builder.Services.AddSingleton<ITokenService>(new TokenService(jwtSettings));
+
+builder.Services.AddSingleton<WebSocketsManager>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -113,6 +117,29 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseWebSockets();
+
+app.Map("/ws", async (HttpContext context, WebSocketsManager manager) =>
+{
+    if (context.WebSockets.IsWebSocketRequest)
+    {
+        var socket = await context.WebSockets.AcceptWebSocketAsync();
+
+        manager.AddSocket(socket);
+
+        var buffer = new byte[1024];
+
+        while (socket.State == WebSocketState.Open)
+        {
+            await socket.ReceiveAsync(buffer, CancellationToken.None);
+        }
+    }
+    else
+    {
+        context.Response.StatusCode = 400;
+    }
+});
 
 using (var scope = app.Services.CreateScope())
 {

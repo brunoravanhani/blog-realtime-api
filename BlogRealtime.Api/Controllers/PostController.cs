@@ -4,6 +4,7 @@ using BlogRealtime.Domain.Dtos;
 using BlogRealtime.Domain.Entity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using System.Security.Claims;
 
 namespace BlogRealtime.Api.Controllers;
@@ -13,10 +14,12 @@ namespace BlogRealtime.Api.Controllers;
 public class PostController : ControllerBase
 {
     private readonly IPostApplication _postApplication;
+    private readonly WebSockets.WebSocketsManager _webSocketManager;
 
-    public PostController(IPostApplication postApplication)
+    public PostController(IPostApplication postApplication, WebSockets.WebSocketsManager webSocketManager)
     {
         _postApplication = postApplication;
+        _webSocketManager = webSocketManager;
     }
 
     [HttpGet]
@@ -40,6 +43,9 @@ public class PostController : ControllerBase
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception("User id not found in claims");
 
         await _postApplication.Create(dto, Guid.Parse(userId));
+
+        await _webSocketManager.BroadcastAsync($"New Post Created: {dto.Title}");
+
         return Created();
     }
 
