@@ -26,13 +26,31 @@ public class PostApplication : IPostApplication
 
     public async Task<PostDto?> GetById(Guid id)
     {
-        var post = await _postService.GetById(id);
+        var post = await _postService.GetById(id) ?? throw new InvalidOperationException("Post not found");
         return new PostDto(post.Id, post.Title, post.Body, post.Image, new AuthorDto(post.Author.Name));
     }
 
-    public async Task Add(CreatePostDto createPostDto)
+    public async Task Create(CreatePostDto createPostDto, Guid userId)
     {
-        var post = new Post(createPostDto.Title, createPostDto.Body, createPostDto.Image, createPostDto.UserId);
+        var post = new Post(createPostDto.Title, createPostDto.Body, createPostDto.Image, userId);
         await _postService.Add(post);
+    }
+
+    public async Task Update(Guid id, UpdatePostDto dto)
+    {
+        var post = await _postService.GetById(id) ?? throw new InvalidOperationException("Post not found");
+
+        post.ChangeTitle(dto.Title);
+        post.ChangeBody(dto.Body);
+        post.ChangeImage(dto.Image);
+
+        await _postService.SaveChanges();
+    }
+
+    public async Task Delete(Guid id)
+    {
+        await _postService.Delete(id);
+
+        await _postService.SaveChanges();
     }
 }

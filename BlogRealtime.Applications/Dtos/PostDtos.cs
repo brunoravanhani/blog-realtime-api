@@ -4,4 +4,6 @@ public record PostDto(Guid Id, string title, string body, string image, AuthorDt
 
 public record AuthorDto(string Name);
 
-public record CreatePostDto(string Title, string Body, string Image, Guid UserId);
+public record CreatePostDto(string Title, string Body, string Image);
+
+public record UpdatePostDto(string Title, string Body, string Image);

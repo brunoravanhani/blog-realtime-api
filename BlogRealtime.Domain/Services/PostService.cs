@@ -31,6 +31,10 @@ public class PostService : IPostService
     public async Task Delete(Guid id)
     {
         await _postRepository.Delete(id);
+    }
+
+    public async Task SaveChanges()
+    {
         await _postRepository.SaveChanges();
     }
 }

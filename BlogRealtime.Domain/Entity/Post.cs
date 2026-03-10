@@ -21,4 +21,10 @@ public class Post
         Image = image;
         UserId = authorId;
     }
+
+    public void ChangeTitle(string title) { Title = title; }
+
+    public void ChangeBody(string body) { Body = body; }
+
+    public void ChangeImage(string image) { Image = image; }
 }

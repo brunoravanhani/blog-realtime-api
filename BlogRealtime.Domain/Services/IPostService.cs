@@ -8,4 +8,5 @@ public interface IPostService
     Task<Post?> GetById(Guid id);
     Task Add(Post post);
     Task Delete(Guid id);
+    Task SaveChanges();
 }
