@@ -70,7 +70,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Minha API",
+        Title = "Blog Realtime API",
         Version = "v1"
     });
 
