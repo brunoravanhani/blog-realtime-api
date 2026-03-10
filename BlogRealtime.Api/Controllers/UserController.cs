@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using BlogRealtime.Domain.Entity;
-using BlogRealtime.Domain.Services;
+using BlogRealtime.Domain.Dtos;
+using BlogRealtime.Application.Interfaces;
 
 namespace BlogRealtime.Api.Controllers;
 
@@ -8,20 +8,17 @@ namespace BlogRealtime.Api.Controllers;
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
-    private readonly IUserService _userService;
+    private readonly IUserApplication _userApplication;
 
-    public UserController(IUserService userService)
+    public UserController(IUserApplication userApplication)
     {
-        _userService = userService;
+        _userApplication = userApplication;
     }
-
-    public record CreateUserDto(string Name, string Email, string Password);
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateUserDto dto)
     {
-        var user = new User(dto.Name, dto.Email, dto.Password);
-        await _userService.Add(user);
+        await _userApplication.Create(dto);
         return Created();
     }
 }

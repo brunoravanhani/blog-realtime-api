@@ -25,4 +25,10 @@ public class UserApplication : IUserApplication
 
         return null;
     }
+
+    public async Task Create(CreateUserDto dto)
+    {
+        var user = new User(dto.Name, dto.Email, dto.Password);
+        await _userService.Add(user);
+    }
 }
