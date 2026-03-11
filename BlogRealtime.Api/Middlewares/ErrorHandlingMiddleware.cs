@@ -30,7 +30,7 @@ public class ErrorHandlingMiddleware
         }
     }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         context.Response.ContentType = "application/json";
 
@@ -45,16 +45,19 @@ public class ErrorHandlingMiddleware
             case InvalidRequestException:
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 response.StatusCode = StatusCodes.Status400BadRequest;
+                _logger.LogWarning("InvalidRequestException caught: {Message}", exception.Message);
                 break;
 
             case ResourceNotFoundException:
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 response.StatusCode = StatusCodes.Status404NotFound;
+                _logger.LogWarning("ResourceNotFoundException caught: {Message}", exception.Message);
                 break;
 
             case UnauthorizedAccessException:
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 response.StatusCode = StatusCodes.Status401Unauthorized;
+                _logger.LogWarning("UnauthorizedAccessException caught: {Message}", exception.Message);
                 break;
 
             case ValidationException validationException:
@@ -65,11 +68,17 @@ public class ErrorHandlingMiddleware
                     PropertyName = e.PropertyName,
                     ErrorMessage = e.ErrorMessage
                 }).ToList();
+                var errorCount = validationException.Errors.Count();
+                var errorDetails = string.Join("; ", validationException.Errors.Select(e => $"{e.PropertyName}: {e.ErrorMessage}"));
+                _logger.LogWarning("ValidationException caught with {ErrorCount} validation errors: {Errors}",
+                    errorCount, errorDetails);
                 break;
 
             default:
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 response.StatusCode = StatusCodes.Status500InternalServerError;
+                _logger.LogError(exception, "Unhandled exception occurred: {ExceptionType}: {Message}",
+                    exception.GetType().Name, exception.Message);
                 break;
         }
 
