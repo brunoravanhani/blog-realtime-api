@@ -6,7 +6,7 @@ using BlogRealtime.Domain.Services;
 
 namespace BlogRealtime.Application.Services;
 
-public class UserApplication : IUserApplication
+internal class UserApplication : IUserApplication
 {
     private readonly IUserService _userService;
     private readonly ICryptographyHelper _cryptographyHelper;

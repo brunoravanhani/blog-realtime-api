@@ -6,7 +6,7 @@ using BlogRealtime.Domain.Services;
 
 namespace BlogRealtime.Application.Services;
 
-public class PostApplication : IPostApplication
+internal class PostApplication : IPostApplication
 {
     private readonly IPostService _postService;
 

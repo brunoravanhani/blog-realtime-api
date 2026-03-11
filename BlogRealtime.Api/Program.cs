@@ -1,17 +1,8 @@
-using BlogRealtime.Api.WebSockets;
-using BlogRealtime.Application.Interfaces;
-using BlogRealtime.Application.Services;
-using BlogRealtime.Domain.Cryptography;
-using BlogRealtime.Domain.Services;
+using BlogRealtime.Api.ExtensionMethods;
+using BlogRealtime.Application.ExtensionMethods;
+using BlogRealtime.Domain.ExtensionMethods;
 using BlogRealtime.Domain.Settings;
-using BlogRealtime.Infra;
 using BlogRealtime.Infra.ExtensionMethods;
-using BlogRealtime.Infra.Seed;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using System.Net.WebSockets;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,70 +14,15 @@ var jwtSettings = new JwtSettings();
 builder.Configuration.GetSection("JwtSettings").Bind(jwtSettings);
 builder.Services.AddSingleton(jwtSettings);
 
-builder.Services.AddScoped<IPostService, PostService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IPostApplication, PostApplication>();
-builder.Services.AddScoped<IUserApplication, UserApplication>();
-
-builder.Services.AddSingleton<WebSocketsManager>();
+builder.Services.AddDomainServices();
+builder.Services.AddApplicationServices();
+builder.Services.AddApiServices();
 
 builder.Services.AddInfraServices(jwtSettings);
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = false,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
+builder.Services.SetupAuthentication(jwtSettings);
 
-        ValidIssuer = jwtSettings.Issuer,
-
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
-    };
-});
-
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Blog Realtime API",
-        Version = "v1"
-    });
-
-    var jwtSecurityScheme = new OpenApiSecurityScheme
-    {
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
-        Description = "Digite apenas o token JWT",
-
-        Reference = new OpenApiReference
-        {
-            Id = "Bearer",
-            Type = ReferenceType.SecurityScheme
-        }
-    };
-
-    options.AddSecurityDefinition("Bearer", jwtSecurityScheme);
-
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            jwtSecurityScheme,
-            Array.Empty<string>()
-        }
-    });
-});
+builder.Services.SetupSwagger();
 
 builder.Services.AddAuthorization();
 
@@ -107,33 +43,6 @@ app.MapControllers();
 
 app.UseWebSockets();
 
-app.Map("/ws", async (HttpContext context, WebSocketsManager manager) =>
-{
-    if (context.WebSockets.IsWebSocketRequest)
-    {
-        var socket = await context.WebSockets.AcceptWebSocketAsync();
-
-        manager.AddSocket(socket);
-
-        var buffer = new byte[1024];
-
-        while (socket.State == WebSocketState.Open)
-        {
-            await socket.ReceiveAsync(buffer, CancellationToken.None);
-        }
-    }
-    else
-    {
-        context.Response.StatusCode = 400;
-    }
-});
-
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<BlogDbContext>();
-    var cryptography = scope.ServiceProvider.GetRequiredService<ICryptographyHelper>();
-    db.Database.EnsureCreated();
-    DbSeeder.Seed(db, cryptography);
-}
+app.SetupDBSeed();
 
 app.Run();

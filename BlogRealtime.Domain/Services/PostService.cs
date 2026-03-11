@@ -3,7 +3,7 @@ using BlogRealtime.Domain.Repository;
 
 namespace BlogRealtime.Domain.Services;
 
-public class PostService : IPostService
+internal class PostService : IPostService
 {
     private readonly IPostRepository _postRepository;
 

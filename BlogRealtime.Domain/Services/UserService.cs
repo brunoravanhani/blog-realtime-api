@@ -3,7 +3,7 @@ using BlogRealtime.Domain.Repository;
 
 namespace BlogRealtime.Domain.Services;
 
-public class UserService : IUserService
+internal class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
 
