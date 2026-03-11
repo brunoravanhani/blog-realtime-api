@@ -2,6 +2,7 @@
 using BlogRealtime.Domain.Cryptography;
 using BlogRealtime.Domain.Dtos;
 using BlogRealtime.Domain.Entity;
+using BlogRealtime.Domain.Exceptions;
 using BlogRealtime.Domain.Services;
 
 namespace BlogRealtime.Application.Services;
@@ -19,14 +20,23 @@ internal class UserApplication : IUserApplication
 
     public async Task<User?> ValidateLogin(UserLoginDto dto)
     {
-        User user = await _userService.GetByEmail(dto.Email) ?? throw new ArgumentException();
-
-        if (_cryptographyHelper.VerifyPassword(dto.Password, user.Password))
+        try
         {
+            User user = await _userService.GetByEmail(dto.Email);
+            if (!_cryptographyHelper.VerifyPassword(dto.Password, user.Password))
+            {
+                throw new UnauthorizedAccessException("Username or password invalid");
+            }
             return user;
         }
-
-        return null;
+        catch (ResourceNotFoundException)
+        {
+            throw new UnauthorizedAccessException("Username or password invalid");
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 
     public async Task Create(CreateUserDto dto)

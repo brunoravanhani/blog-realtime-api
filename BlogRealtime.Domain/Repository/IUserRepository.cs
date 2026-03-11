@@ -8,6 +8,6 @@ public interface IUserRepository : IRepository
 {
     Task<IEnumerable<User>> GetAll();
     Task<User?> GetById(Guid id);
-    Task<User>? GetByEmail(string email);
+    Task<User?> GetByEmail(string email);
     Task Add(User user);
 }

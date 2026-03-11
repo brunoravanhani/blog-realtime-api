@@ -18,9 +18,8 @@ internal class InMemoryPostRepository : IPostRepository
         await _context.Posts.AddAsync(post);
     }
 
-    public async Task Delete(Guid id)
+    public async Task Delete(Post post)
     {
-        var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == id) ?? throw new InvalidOperationException("Post not found");
         _context.Posts.Remove(post);
     }
 

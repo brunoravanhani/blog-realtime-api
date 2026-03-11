@@ -13,6 +13,14 @@ public class Post
     {
     }
 
+    public Post(Guid id, string title, string body, string image)
+    {
+        Id = id;
+        Title = title;
+        Body = body;
+        Image = image;
+    }
+
     public Post(string title, string body, string image, Guid authorId)
     {
         Id = Guid.NewGuid();

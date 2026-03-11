@@ -1,4 +1,5 @@
 using BlogRealtime.Api.ExtensionMethods;
+using BlogRealtime.Api.Middlewares;
 using BlogRealtime.Application.ExtensionMethods;
 using BlogRealtime.Domain.ExtensionMethods;
 using BlogRealtime.Domain.Settings;
@@ -27,6 +28,8 @@ builder.Services.SetupSwagger();
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

@@ -24,9 +24,9 @@ internal class PostApplication : IPostApplication
         });
     }
 
-    public async Task<PostDto?> GetById(Guid id)
+    public async Task<PostDto> GetById(Guid id)
     {
-        var post = await _postService.GetById(id) ?? throw new InvalidOperationException("Post not found");
+        var post = await _postService.GetById(id);
         return new PostDto(post.Id, post.Title, post.Body, post.Image, new AuthorDto(post.Author.Name));
     }
 
@@ -38,19 +38,12 @@ internal class PostApplication : IPostApplication
 
     public async Task Update(Guid id, UpdatePostDto dto)
     {
-        var post = await _postService.GetById(id) ?? throw new InvalidOperationException("Post not found");
-
-        post.ChangeTitle(dto.Title);
-        post.ChangeBody(dto.Body);
-        post.ChangeImage(dto.Image);
-
-        await _postService.SaveChanges();
+        var postToUpdate = new Post(id, dto.Title, dto.Body, dto.Image);
+        await _postService.Update(postToUpdate);
     }
 
     public async Task Delete(Guid id)
     {
         await _postService.Delete(id);
-
-        await _postService.SaveChanges();
     }
 }

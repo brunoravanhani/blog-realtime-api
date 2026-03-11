@@ -1,4 +1,5 @@
 using BlogRealtime.Domain.Entity;
+using BlogRealtime.Domain.Exceptions;
 using BlogRealtime.Domain.Repository;
 
 namespace BlogRealtime.Domain.Services;
@@ -12,9 +13,9 @@ internal class UserService : IUserService
         _userRepository = userRepository;
     }
 
-    public async Task<User?> GetByEmail(string email)
+    public async Task<User> GetByEmail(string email)
     {
-        return await _userRepository.GetByEmail(email);
+        return await _userRepository.GetByEmail(email) ?? throw new ResourceNotFoundException("User not found");
     }
 
     public async Task Add(User user)

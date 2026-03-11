@@ -22,13 +22,7 @@ public class AuthController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Login(UserLoginDto dto)
     {
-        var user = await _userApplication.ValidateLogin(dto);
-
-        if (user == null)
-        {
-            return Unauthorized("Invalid email or password.");
-        }
-
+        var user = await _userApplication.ValidateLogin(dto) ?? throw new UnauthorizedAccessException("Invalid email or password.");
         var token = _tokenService.GenerateToken(user);
         var response = new AuthResponseDto(token, new UserDto(user.Id, user.Name, user.Email));
 
