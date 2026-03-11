@@ -2,6 +2,7 @@ using System.Net;
 using System.Text.Json;
 using BlogRealtime.Api.Models;
 using BlogRealtime.Domain.Exceptions;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 
 namespace BlogRealtime.Api.Middlewares;
@@ -54,6 +55,16 @@ public class ErrorHandlingMiddleware
             case UnauthorizedAccessException:
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 response.StatusCode = StatusCodes.Status401Unauthorized;
+                break;
+
+            case ValidationException validationException:
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.StatusCode = StatusCodes.Status400BadRequest;
+                response.Errors = validationException.Errors.Select(e => new ValidationError
+                {
+                    PropertyName = e.PropertyName,
+                    ErrorMessage = e.ErrorMessage
+                }).ToList();
                 break;
 
             default:
